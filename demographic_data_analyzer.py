@@ -39,7 +39,19 @@ data['min_hr_worked'] = data['hours-per-week']==1
 min_hrs_salary_table = pd.crosstab(data['min_hr_worked'],data['salary'],normalize='index') * 100
 min_hrs_wealthy = min_hrs_salary_table.loc[True,'>50K']
 
+# What country has the highest percentage of people that earn >50K?
+inc_by_country = pd.crosstab(data['native-country'],data['salary'])
+inc_by_country['perc_over_50k'] = inc_by_country['>50K'] / (inc_by_country['>50K'] + inc_by_country['<=50K'])
+sorted_inc_by_country = inc_by_country.sort_values(by='perc_over_50k',ascending=False)
+top_country = sorted_inc_by_country.index[0]
+top_country_percent = round(sorted_inc_by_country['perc_over_50k'][0]*100, 1)
 
+
+# Identify the most popular occupation for those who earn >50K in India.
+india_50k = (data['native-country'] == 'India') & (data['salary']=='>50K')
+india_50k = data[india_50k]
+occ_rank = india_50k['occupation'].value_counts(ascending=False)
+top_occ = occ_rank.index[0]
 
 ###################################################################
 
@@ -75,11 +87,11 @@ def calculate_demographic_data(print_data=True):
     rich_percentage = min_hrs_wealthy
 
     # What country has the highest percentage of people that earn >50K?
-    highest_earning_country = None
-    highest_earning_country_percentage = None
+    highest_earning_country = top_country
+    highest_earning_country_percentage = top_country_percent
 
     # Identify the most popular occupation for those who earn >50K in India.
-    top_IN_occupation = None
+    top_IN_occupation = top_occ
 
     # DO NOT MODIFY BELOW THIS LINE
 
